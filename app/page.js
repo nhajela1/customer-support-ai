@@ -91,6 +91,14 @@ export default function Home() {
       justifyContent="center"
       alignItems="center"
     >
+      <Button
+        variant="contained"
+        color="secondary"
+        href="/admin"
+        sx={{ position: 'absolute', top: 16, right: 16 }}
+      >
+        Admin Dashboard
+      </Button>
       <Stack
         direction={'column'}
         width="500px"
