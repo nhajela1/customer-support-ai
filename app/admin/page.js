@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Box, Button, TextField, Typography, Container } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import { uploadFile } from '@/app/api/upload/route'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
@@ -31,19 +30,20 @@ export default function AdminDashboard() {
       return
     }
 
-    // Upload the file using the hyphenated company name as the ID
-    const companyId = companyName.trim().toLowerCase().replace(/\s+/g, '-')
+    // Upload the file
     const uploadResponse = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ companyId, file }),
+      body: JSON.stringify({ file }),
     })
+    const fileURL = uploadResponse.ok ? (await uploadResponse.json()).fileUrl : null
 
     // Set the company name and file URL in the database
+    const companyId = companyName.trim().toLowerCase().replace(/\s+/g, '-')
     const databaseResponse = await fetch('/api/set-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ companyId, companyName, uploadResponse }),
+      body: JSON.stringify({ companyId, companyName, fileURL }),
     })
 
     // Set the system prompt
@@ -60,9 +60,9 @@ export default function AdminDashboard() {
       body: JSON.stringify({ description }),
     })
 
-    if (uploadResponse.ok && databaseResponse.ok) {
+    if (databaseResponse.ok) {
       console.log('File uploaded and company data stored successfully')
-      if (databaseResponse.ok) {
+      if (uploadResponse.ok) {
         console.log('Company data stored successfully')
         if (sysPromptResponse.ok) {
           router.push('/')

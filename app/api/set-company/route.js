@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 import { Firestore } from "firebase/firestore";
 
 export async function POST(req) {
-  data = await req.json();
-  companyID = data.companyID;
-  companyName = data.companyName;
-  fileUrl = data.fileUrl;
-
-  // Store the company ID, company name, and file URL in the database
+  const data = await req.json();
+  const companyID = data.companyID;
+  const companyName = data.companyName;
+  const fileUrl = data.fileUrl;
   const db = Firestore();
   const docRef = db.collection("companies").doc(companyID);
   const response = await docRef.set({
