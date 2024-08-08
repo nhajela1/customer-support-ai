@@ -36,7 +36,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file }),
     })
-    const fileURL = uploadResponse.ok ? (await uploadResponse.json()).fileUrl : null
+    fileURL = (await uploadResponse).json().fileUrl
 
     // Set the company name and file URL in the database
     const companyId = companyName.trim().toLowerCase().replace(/\s+/g, '-')
