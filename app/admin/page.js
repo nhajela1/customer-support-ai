@@ -14,24 +14,31 @@ export default function AdminDashboard() {
   }
 
   const handleSubmit = async () => {
-    // Set the system prompt
-    await fetch('/api/set-system-prompt', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description }),
-    })
-
     // Generate a high-quality system prompt
     const response = await fetch('/api/generate-system-prompt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description }),
-    })
+    });
 
     if (response.ok) {
-      router.push('/')
+      const data = await response.json();
+      const generatedPrompt = data.prompt;
+
+      // Set the generated system prompt
+      const setPromptResponse = await fetch('/api/set-system-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: generatedPrompt }),
+      });
+
+      if (setPromptResponse.ok) {
+        router.push('/');
+      } else {
+        console.error('Failed to set system prompt');
+      }
     } else {
-      console.error('Failed to generate system prompt')
+      console.error('Failed to generate system prompt');
     }
   }
 
