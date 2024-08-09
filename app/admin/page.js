@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Box, Button, TextField, Typography, Container } from '@mui/material'
 import { useRouter } from 'next/navigation'
+import { upload } from '@/action/upload'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
@@ -31,19 +32,15 @@ export default function AdminDashboard() {
     }
 
     // Upload the file
-    const uploadResponse = await fetch('/api/upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file }),
-    })
-    fileURL = (await uploadResponse).json().fileUrl
+    const formData = new FormData()
+    const fileURL = await upload(formData)
 
     // Set the company name and file URL in the database
-    const companyId = companyName.trim().toLowerCase().replace(/\s+/g, '-')
+    const companyID = companyName.trim().toLowerCase().replace(/\s+/g, '-')
     const databaseResponse = await fetch('/api/set-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ companyId, companyName, fileURL }),
+      body: JSON.stringify({ companyID, companyName, fileURL }),
     })
 
     // Set the system prompt
@@ -60,17 +57,13 @@ export default function AdminDashboard() {
       body: JSON.stringify({ description }),
     })
 
-    if (databaseResponse.ok) {
-      console.log('File uploaded and company data stored successfully')
-      if (uploadResponse.ok) {
-        console.log('Company data stored successfully')
-        if (sysPromptResponse.ok) {
-          router.push('/')
-        } else {
-          console.error('Failed to generate system prompt')
-        }
+  if (databaseResponse.ok) {
+    console.log('File uploaded and company data stored successfully')
+      if (sysPromptResponse.ok) {
+        console.log('System prompt generated successfully')
+        router.push('/')
       } else {
-        console.error('Failed to store company data')
+        console.error('Failed to generate system prompt')
       }
     } else {
       console.error('Failed to upload file or store company data')

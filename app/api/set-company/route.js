@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
-import { Firestore } from "firebase/firestore";
+import { firestore } from "@/firebase.js";
+import { setDoc, doc } from "firebase/firestore";
 
 export async function POST(req) {
   const data = await req.json();
+  console.log("Data: ", data);
   const companyID = data.companyID;
+  console.log("Company ID: ", companyID);
   const companyName = data.companyName;
-  const fileUrl = data.fileUrl;
-  const db = Firestore();
-  const docRef = db.collection("companies").doc(companyID);
-  const response = await docRef.set({
-    companyName: companyName,
-    fileUrl: fileUrl,
-  });
+  console.log("Company Name: ", companyName);
+  const fileURL = data.fileURL;
+  console.log("File URL: ", fileURL);
 
-  if (response) {
+  // Add a new document with a generated ID
+  try {
+    await setDoc(doc(firestore, "companies", companyID), {
+      companyName: companyName,
+      fileURL: fileURL,
+    });
     return NextResponse.json({ success: true });
-  } else {
+  } catch (e) {
+    console.error("Error adding document: ", e);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
