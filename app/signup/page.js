@@ -6,6 +6,8 @@ import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBase
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { auth } from '../../utils/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
+import { firestore } from '../../utils/firebase';
 
 const theme = createTheme({
   palette: {
@@ -40,8 +42,17 @@ const SignUpPage = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/'); // Redirect to home page after sign up
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create a new document for the user in Firestore
+      await setDoc(doc(firestore, "users", user.uid), {
+        email: user.email,
+        companyID: null, // This will be set later when the user creates a company
+        messages: []
+      });
+
+      router.push('/admin'); // Redirect to admin page after sign up
     } catch (error) {
       let errorMessage = 'An error occurred. Please try again.';
       switch (error.code) {

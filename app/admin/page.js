@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import Navbar from '../../components/navbar'
 import theme from '../styles/theme';
 import { upload } from '@/action/upload'
+import { auth, firestore } from '@/utils/firebase'
+import { updateDoc, doc } from 'firebase/firestore'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
@@ -18,40 +20,47 @@ export default function AdminDashboard() {
   }
 
   const handleSubmit = async (e) => {
-    // Prevent the default form submission
     e.preventDefault()
 
-    // Check if a file has been selected
-    if (!file) {
-      console.error('No file selected')
+    if (!file || companyName === '') {
+      console.error('File and company name are required')
       return
     }
 
-    // Check if a company name has been entered
-    if (companyName === '') {
-      console.error('Company name is required')
-      return
-    }
-
-    // Upload the file
     const formData = new FormData()
     formData.append('file', file)
     const fileURL = await upload(formData)
 
-    // Set the company name and file URL in the database
     const companyID = companyName.trim().toLowerCase().replace(/\s+/g, '-')
+    
+    // Set the company data
     const databaseResponse = await fetch('/api/set-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ companyID, companyName, fileURL }),
     })
 
-    // Set the system prompt
-    await fetch('/api/set-system-prompt', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description }),
-    })
+    if (!databaseResponse.ok) {
+      console.error('Failed to store company data')
+      return
+    }
+
+    // Associate the company ID with the current user
+    const user = auth.currentUser;
+    if (!user) {
+      console.error('No user is currently signed in');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(firestore, "users", user.uid), {
+        companyID: companyID
+      });
+      console.log('Company ID associated with user successfully');
+    } catch (error) {
+      console.error('Failed to associate company with user:', error);
+      return;
+    }
 
     // Generate a high-quality system prompt
     const sysPromptResponse = await fetch('/api/generate-system-prompt', {
@@ -60,30 +69,25 @@ export default function AdminDashboard() {
       body: JSON.stringify({ description }),
     });
 
-  if (databaseResponse.ok) {
-    console.log('File uploaded and company data stored successfully')
-      if (sysPromptResponse.ok) {
-        console.log('System prompt generated successfully')
-        const data = await response.json();
-      const generatedPrompt = data.prompt;
+    if (!sysPromptResponse.ok) {
+      console.error('Failed to generate system prompt')
+      return
+    }
 
-      // Set the generated system prompt
-      const setPromptResponse = await fetch('/api/set-system-prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: generatedPrompt }),
-      });
+    const { prompt: generatedPrompt } = await sysPromptResponse.json();
 
-      if (setPromptResponse.ok) {
-        router.push('/chat');
-      } else {
-        console.error('Failed to set system prompt');
-      }
-      } else {
-        console.error('Failed to generate system prompt');
-      }
+    // Set the generated system prompt for the company
+    const setPromptResponse = await fetch('/api/set-system-prompt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyID, systemPrompt: generatedPrompt }),
+    });
+
+    if (setPromptResponse.ok) {
+      console.log('Company data stored and system prompt set successfully')
+      router.push('/chat');
     } else {
-      console.error('Failed to upload file or store company data')
+      console.error('Failed to set system prompt');
     }
   }
 

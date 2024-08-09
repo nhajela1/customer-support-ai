@@ -7,6 +7,8 @@ import theme from '../styles/theme';
 import Navbar from '../../components/navbar';
 import { auth } from '../../utils/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { firestore } from '../../utils/firebase';
+import { collection, addDoc, doc, setDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
 
 export default function LandingPage() {
 
@@ -14,76 +16,126 @@ export default function LandingPage() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! I'm the Headstarter support assistant. How can I help you today?",
+      content: "Hi! I'm a support assistant. How can I help you today?",
     },
   ])
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
   const [userEmail, setUserEmail] = useState(''); // State to hold user email
+  const [companyID, setCompanyID] = useState('');
 
   useEffect(() => {
-    // Fetch the current user's email and UID
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email);
+        fetchUserMessages(user.uid);
+        fetchCompanyID(user.uid);
       } else {
         setUserEmail('');
+        setCompanyID('');
+        setMessages([
+          {
+            role: 'assistant',
+            content: "Hi! I'm a support assistant. How can I help you today?",
+          },
+        ]);
       }
     });
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
+
+  const fetchUserMessages = async (userId) => {
+    const userRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userRef);
+  
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.messages && userData.messages.length > 0) {
+        setMessages(userData.messages);
+      }
+    }
+  };
+
+  const fetchCompanyID = async (userId) => {
+    const userRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userRef);
+  
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.companyID) {
+        setCompanyID(userData.companyID);
+      }
+    }
+  };
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
-    setIsLoading(true)
-    setMessage('')
-    setMessages((messages) => [
-      ...messages,
-      { role: 'user', content: message },
-      { role: 'assistant', content: '' },
-    ])
+    setIsLoading(true);
+    setMessage('');
+    const newUserMessage = { role: 'user', content: message };
+    setMessages((prevMessages) => [...prevMessages, newUserMessage, { role: 'assistant', content: '' }]);
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([...messages, { role: 'user', content: message }]),
-      })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyID, messages: [...messages, newUserMessage] }),
+      });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok')
+        throw new Error('Network response was not ok');
       }
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantResponse = '';
 
       while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const text = decoder.decode(value, { stream: true })
-        setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1]
-          let otherMessages = messages.slice(0, messages.length - 1)
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ]
-        })
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        assistantResponse += text;
+        setMessages((prevMessages) => {
+          const updatedMessages = [...prevMessages];
+          updatedMessages[updatedMessages.length - 1] = { 
+            role: 'assistant', 
+            content: assistantResponse 
+          };
+          return updatedMessages;
+        });
       }
+
+      await appendMessagesToFirestore(newUserMessage, { role: 'assistant', content: assistantResponse });
     } catch (error) {
-      console.error('Error:', error)
-      setMessages((messages) => [
-        ...messages,
+      console.error('Error:', error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
         { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
-      ])
+      ]);
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
+
+  const appendMessagesToFirestore = async (userMessage, assistantMessage) => {
+    if (!auth.currentUser) return;
+
+    const userRef = doc(firestore, 'users', auth.currentUser.uid);
+    const userDoc = await getDoc(userRef);
+
+    const updatedMessages = userDoc.exists()
+      ? [...userDoc.data().messages, userMessage, assistantMessage]
+      : [userMessage, assistantMessage];
+
+    await setDoc(userRef, {
+      email: auth.currentUser.email,
+      messages: updatedMessages,
+    }, { merge: true });
+
+    setMessages(updatedMessages);
+  };
 
   const handleSignOut = async () => {
     await signOut(auth);
