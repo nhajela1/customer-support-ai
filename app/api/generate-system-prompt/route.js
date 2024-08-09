@@ -15,16 +15,5 @@ export async function POST(req) {
 
   const generatedPrompt = completion.choices[0].message.content
 
-  // Set the generated prompt as the new system prompt
-  const response = await fetch('http://localhost:3000/api/set-system-prompt', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ description: generatedPrompt }),
-  })
-
-  if (response.ok) {
-    return NextResponse.json({ success: true, prompt: generatedPrompt })
-  } else {
-    return NextResponse.json({ success: false }, { status: 500 })
-  }
+  return NextResponse.json({ success: true, prompt: generatedPrompt })
 }
