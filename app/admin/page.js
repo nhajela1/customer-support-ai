@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Box, Button, TextField, Typography, Container } from '@mui/material'
 import { useRouter } from 'next/navigation'
+import Navbar from '../../components/navbar'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
       });
 
       if (setPromptResponse.ok) {
-        router.push('/');
+        router.push('/chat');
       } else {
         console.error('Failed to set system prompt');
       }
@@ -43,6 +44,8 @@ export default function AdminDashboard() {
   }
 
   return (
+    <>
+    <Navbar />
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -80,5 +83,6 @@ export default function AdminDashboard() {
         </Button>
       </Box>
     </Container>
+    </>
   )
 }
