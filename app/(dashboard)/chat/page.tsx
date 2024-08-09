@@ -1,12 +1,17 @@
 'use client'
 
-import { Container, Box, Button, Stack, TextField, ThemeProvider } from '@mui/material'
+import { Container, Box, Stack, TextField, ThemeProvider } from '@mui/material'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation';
-import theme from '../styles/theme';
-import Navbar from '../../components/navbar';
-import { auth } from '../../utils/firebase';
+import theme from '../../styles/theme';
+import Navbar from '../../../components/navbar';
+import { auth } from '../../../utils/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Send, ThumbsUp, Pencil } from 'lucide-react';
 
 export default function LandingPage() {
 
@@ -26,7 +31,7 @@ export default function LandingPage() {
     // Fetch the current user's email and UID
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserEmail(user.email);
+        setUserEmail(user?.email!);
       } else {
         setUserEmail('');
       }
@@ -58,11 +63,11 @@ export default function LandingPage() {
         throw new Error('Network response was not ok')
       }
 
-      const reader = response.body.getReader()
+      const reader = response.body?.getReader()
       const decoder = new TextDecoder()
 
       while (true) {
-        const { done, value } = await reader.read()
+        const { done, value } = await reader?.read() as { done: any, value: any }
         if (done) break
         const text = decoder.decode(value, { stream: true })
         setMessages((messages) => {
@@ -90,7 +95,7 @@ export default function LandingPage() {
     router.push('/'); // Redirect to the landing page after signing out
   };
 
-  const handleMenuOpen = (event) => {
+  const handleMenuOpen = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -98,7 +103,7 @@ export default function LandingPage() {
     setAnchorEl(null);
   };
 
-  const handleKeyPress = (event) => {
+  const handleKeyPress = (event: any) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       sendMessage()
@@ -109,7 +114,7 @@ export default function LandingPage() {
     router.push('/admin');
   }
 
-  const messagesEndRef = useRef(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -120,17 +125,10 @@ export default function LandingPage() {
   }, [messages])
 
   return (
-
-    <ThemeProvider theme={theme}>
-
-      <Navbar />
-
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center"
-        p={8}
-      >
+    <main className='flex flex-col items-center'>
+      {
+        /*
+        
         <Button
           type="submit"
           variant="contained"
@@ -138,75 +136,70 @@ export default function LandingPage() {
         >
           Admin Dashboard
         </Button>
-      </Box>
-
-
-      <Box
-        width="100vw"
-        height="100vh"
-        display="flex"
-        flexDirection="column"
-        justifyContent="flex-start"
-        alignItems="center"
-      >
-        <Stack
-          direction={'column'}
-          width="500px"
-          height="700px"
-          border="1px solid black"
-          p={2}
-          spacing={3}
-        >
-          <Stack
-            direction={'column'}
-            spacing={2}
-            flexGrow={1}
-            overflow="auto"
-            maxHeight="100%"
-          >
-            {messages.map((message, index) => (
-              <Box
-                key={index}
-                display="flex"
-                justifyContent={
-                  message.role === 'assistant' ? 'flex-start' : 'flex-end'
-                }
-              >
-                <Box
-                  bgcolor={
-                    message.role === 'assistant'
-                      ? 'primary.main'
-                      : 'secondary.main'
-                  }
-                  color="white"
-                  borderRadius={16}
-                  p={3}
-                >
-                  {message.content}
-                </Box>
-              </Box>
-            ))}
-            <div ref={messagesEndRef} />
-          </Stack>
-          <Stack direction={'row'} spacing={2}>
-            <TextField
-              label="Message"
-              fullWidth
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={isLoading}
-            />
-            <Button
-              variant="contained"
-              onClick={sendMessage}
-              disabled={isLoading}
+        
+        */
+      }
+      <div className='flex flex-col w-full md:w-3/5 h-[85dvh] p-3 gap-3'>
+        <ul className='flex flex-col gap-2 flex-grow overflow-auto max-h-full'>
+          {messages.map((message, index) => (
+            <li
+              key={index}
+              className={cn("grid grid-cols-[_7%_auto_7%] gap-1 items-center")}
             >
-              {isLoading ? 'Sending...' : 'Send'}
-            </Button>
-          </Stack>
-        </Stack>
-      </Box>
-    </ThemeProvider>
+              <Avatar>
+                <AvatarImage 
+                  src={message.role === "assistant" ? 
+                    "https://api.dicebear.com/9.x/shapes/svg?seed=Sasha" : 
+                    "https://api.dicebear.com/9.x/adventurer/svg?seed=You&backgroundColor=b6e3f4"
+                  }
+                />
+                <AvatarFallback>C</AvatarFallback>
+              </Avatar>
+              <div
+                //color="white"
+                //borderRadius={16}
+                //p={3}
+              >
+                <p className="text-lg font-semibold">{message.role === 'assistant' ? 'ChatAI' : 'You'}</p>
+                <p>{message.content}</p>
+              </div>
+              <div>
+                {
+                  message.role === "assistant" ? 
+                  <Button variant="ghost" size="icon">
+                    <ThumbsUp/>
+                  </Button>
+                  :
+                  <Button variant="ghost" size="icon">
+                    <Pencil/>
+                  </Button>
+                }
+              </div>
+            </li>
+          ))}
+          <div ref={messagesEndRef} />
+        </ul>
+
+        <div className="grid grid-cols-[_auto_10%] gap-2 items-center w-full h-12">
+          <Input
+            placeholder="Enter your question here..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isLoading}
+            className="w-full h-full"
+          />
+          <Button
+            onClick={sendMessage}
+            disabled={isLoading}
+            size="icon"
+            className="disabled:brightness-50 h-12 w-12 aspect-square"
+          >
+            {<Send className="h-4 w-4"/>}
+          </Button>
+        </div>
+      </div>
+      
+    </main>
   )
 }
