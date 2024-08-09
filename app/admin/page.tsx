@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { CornerDownLeft, Paperclip, X } from 'lucide-react'
+import { upload } from '@/action/upload'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
+  const [companyName, setCompanyName] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -23,7 +25,34 @@ export default function AdminDashboard() {
     setFile(event.target?.files![0])
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent the default form submission
+    e.preventDefault()
+
+    // Check if a file has been selected
+    if (!file) {
+      console.error('No file selected')
+      return
+    }
+
+    // Check if a company name has been entered
+    if (companyName === '') {
+      console.error('Company name is required')
+      return
+    }
+
+    // Upload the file
+    const formData = new FormData()
+    const fileURL = await upload(formData)
+
+    // Set the company name and file URL in the database
+    const companyID = companyName.trim().toLowerCase().replace(/\s+/g, '-')
+    const databaseResponse = await fetch('/api/set-company', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyID, companyName, fileURL }),
+    })
+
     // Set the system prompt
     await fetch('/api/set-system-prompt', {
       method: 'POST',
@@ -32,16 +61,36 @@ export default function AdminDashboard() {
     })
 
     // Generate a high-quality system prompt
-    const response = await fetch('/api/generate-system-prompt', {
+    const sysPromptResponse = await fetch('/api/generate-system-prompt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description }),
-    })
+    });
 
-    if (response.ok) {
-      router.push('/')
+  if (databaseResponse.ok) {
+    console.log('File uploaded and company data stored successfully')
+      if (sysPromptResponse.ok) {
+        console.log('System prompt generated successfully')
+        const data = await sysPromptResponse.json();
+      const generatedPrompt = data.prompt;
+
+      // Set the generated system prompt
+      const setPromptResponse = await fetch('/api/set-system-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: generatedPrompt }),
+      });
+
+      if (setPromptResponse.ok) {
+        router.push('/chat');
+      } else {
+        console.error('Failed to set system prompt');
+      }
+      } else {
+        console.error('Failed to generate system prompt');
+      }
     } else {
-      console.error('Failed to generate system prompt')
+      console.error('Failed to upload file or store company data')
     }
   }
 
@@ -52,6 +101,12 @@ export default function AdminDashboard() {
           <CardTitle>Admin Dashboard</CardTitle>
         </CardHeader>
         <CardContent>
+          <Input
+            placeholder="Company Name"
+            className='mb-2'
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+          />
           <Textarea
             placeholder="Company Description"
             value={description}
