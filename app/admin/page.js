@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Box, Button, TextField, Typography, Container } from '@mui/material'
+import { Box, Button, TextField, Typography, Container, ThemeProvider } from '@mui/material'
 import { useRouter } from 'next/navigation'
+import Navbar from '../../components/navbar'
+import theme from '../styles/theme';
 import { upload } from '@/action/upload'
 
 export default function AdminDashboard() {
@@ -55,15 +57,29 @@ export default function AdminDashboard() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description }),
-    })
+    });
 
   if (databaseResponse.ok) {
     console.log('File uploaded and company data stored successfully')
       if (sysPromptResponse.ok) {
         console.log('System prompt generated successfully')
-        router.push('/')
+        const data = await response.json();
+      const generatedPrompt = data.prompt;
+
+      // Set the generated system prompt
+      const setPromptResponse = await fetch('/api/set-system-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: generatedPrompt }),
+      });
+
+      if (setPromptResponse.ok) {
+        router.push('/chat');
       } else {
-        console.error('Failed to generate system prompt')
+        console.error('Failed to set system prompt');
+      }
+      } else {
+        console.error('Failed to generate system prompt');
       }
     } else {
       console.error('Failed to upload file or store company data')
@@ -71,6 +87,8 @@ export default function AdminDashboard() {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+    <Navbar />
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -116,5 +134,6 @@ export default function AdminDashboard() {
         </Button>
       </Box>
     </Container>
+    </ThemeProvider>
   )
 }
