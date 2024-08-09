@@ -1,7 +1,9 @@
 'use client'
-
-import { Box, Button, Stack, TextField } from '@mui/material'
 import { useState, useEffect, useRef } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 export default function Home() {
   const [messages, setMessages] = useState([
@@ -83,79 +85,45 @@ export default function Home() {
   }, [messages])
 
   return (
-    <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Button
-        variant="contained"
-        color="secondary"
-        href="/admin"
-        sx={{ position: 'absolute', top: 16, right: 16 }}
-      >
-        Admin Dashboard
-      </Button>
-      <Stack
-        direction={'column'}
-        width="500px"
-        height="700px"
-        border="1px solid black"
-        p={2}
-        spacing={3}
-      >
-        <Stack
-          direction={'column'}
-          spacing={2}
-          flexGrow={1}
-          overflow="auto"
-          maxHeight="100%"
-        >
+    <main className='h-screen w-screen flex flex-col items-center justify-center p-6'>
+
+      <div className='flex w-full items-center justify-end'>
+        <Button>
+          Admin Dashboard
+        </Button>        
+      </div>
+
+      <section className='flex flex-col border border-black w-[500px] h-[700px] p-2 gap-3'>
+        <ul className='flex flex-col gap-4 overflow-y-auto max-h-full flex-grow list-none m-0 p-0'>
           {messages.map((message, index) => (
-            <Box
+            <li
               key={index}
-              display="flex"
-              justifyContent={
-                message.role === 'assistant' ? 'flex-start' : 'flex-end'
-              }
+              className={cn("flex", message.role === 'assistant' ? 'justify-start' : 'justify-end')}
             >
-              <Box
-                bgcolor={
-                  message.role === 'assistant'
-                    ? 'primary.main'
-                    : 'secondary.main'
-                }
-                color="white"
-                borderRadius={16}
-                p={3}
+              <div
+                className={cn('p-6 text-white rounded-[50px]', message.role === 'assistant'
+                  ? 'bg-blue-500'
+                  : 'bg-purple-500')}
               >
                 {message.content}
-              </Box>
-            </Box>
+              </div>
+            </li>
           ))}
           <div ref={messagesEndRef} />
-        </Stack>
-        <Stack direction={'row'} spacing={2}>
-          <TextField
-            label="Message"
-            fullWidth
+        </ul>
+        <div className='flex gap-2 items-center w-full'>
+          <Input
+            placeholder="Message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isLoading}
           />
-          <Button 
-            variant="contained" 
-            onClick={sendMessage}
-            disabled={isLoading}
-          >
+          <Button>
             {isLoading ? 'Sending...' : 'Send'}
           </Button>
-        </Stack>
-      </Stack>
-    </Box>
+        </div>
+      </section>
+    </main>
   )
 }
