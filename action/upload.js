@@ -1,6 +1,7 @@
 'use server';
+
 import { storage } from '@/firebase.js';
-import { ref, getStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export async function upload(formData) {
   // Upload the file to Firebase Storage under the directory 'uploads'
