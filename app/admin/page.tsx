@@ -1,23 +1,31 @@
 'use client'
 
-import { useState } from 'react'
-import { Box, Button, TextField, Typography, Container, ThemeProvider } from '@mui/material'
+import { useRef, useState } from 'react'
+import { Box, TextField, Typography, Container } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import Navbar from '../../components/navbar'
-import theme from '../styles/theme';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { CornerDownLeft, Paperclip, X } from 'lucide-react'
 import { upload } from '@/action/upload'
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
-  const [file, setFile] = useState(null)
-  const router = useRouter()
+  const [file, setFile] = useState<File | null>(null)
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0])
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target?.files![0], "hello")
+    setFile(event.target?.files![0])
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // Prevent the default form submission
     e.preventDefault()
 
@@ -63,7 +71,7 @@ export default function AdminDashboard() {
     console.log('File uploaded and company data stored successfully')
       if (sysPromptResponse.ok) {
         console.log('System prompt generated successfully')
-        const data = await response.json();
+        const data = await sysPromptResponse.json();
       const generatedPrompt = data.prompt;
 
       // Set the generated system prompt
@@ -87,53 +95,52 @@ export default function AdminDashboard() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-    <Navbar />
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Admin Dashboard
-        </Typography>
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Company Name"
-          sx={{ mb: 2 }}
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-        />
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          variant="outlined"
-          label="Company Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <Button
-          variant="contained"
-          component="label"
-          sx={{ mb: 2 }}
-        >
-          Upload Document
-          <input
-            type="file"
-            hidden
-            onChange={handleFileChange}
+    <section className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+      <Card>
+        <CardHeader>
+          <CardTitle>Admin Dashboard</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            placeholder="Company Name"
+            className='mb-2'
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
           />
-        </Button>
-        {file && <Typography sx={{ mb: 2 }}>{file.name}</Typography>}
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={handleSubmit}
-        >
-          Submit
-        </Button>
-      </Box>
-    </Container>
-    </ThemeProvider>
+          <Textarea
+            placeholder="Company Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className='mb-3'
+          />
+
+          {
+            !file ? 
+            <Input
+              type="file"
+              onChange={handleFileChange}
+            />
+            :
+            <div className='flex items-center justify-between w-full border border-input rounded-md px-2 py-0.5'>
+              <p>{file.name}</p>
+              <Button 
+                onClick={() => setFile(null)} 
+                variant="ghost" size="icon"
+              >
+                <X className='h-4 w-4'/>
+              </Button>
+            </div>
+          }  
+
+        </CardContent>
+        <CardFooter>
+          <Button
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </CardFooter>
+      </Card>
+    </section>
   )
 }
