@@ -70,3 +70,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .bg-background {
+    background-color: #f8f9fa; /* or any other color you want */
+  }
+}
