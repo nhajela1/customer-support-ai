@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 const Page = () => {
   const pathname = usePathname();
 
+  /*
   if (pathname === '/login') {
     return <SignInPage />;
   }
@@ -21,6 +22,7 @@ const Page = () => {
     return <ChatPage />;
   }
 
+  */
   return <LandingPage />;
 };
 

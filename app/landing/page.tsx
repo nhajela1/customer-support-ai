@@ -93,21 +93,6 @@ export default function LandingPage() {
                     // eslint-disable-next-line tailwindcss/no-contradicting-classname
                     className={cn(
                       buttonVariants({
-                        variant: "default",
-                        size: "lg",
-                      }),
-                      "gap-2 whitespace-pre md:flex",
-                      "group relative w-full gap-1 rounded-full text-sm font-semibold tracking-tighter ring-offset-inherit transition-all duration-150 ease-in-out hover:ring-2 hover:ring-black hover:ring-offset-2 hover:ring-offset-current dark:hover:ring-neutral-50"
-                    )}
-                  >
-                    Browse Templates
-                    <ChevronRight className="ml-1 size-4 shrink-0 transition-all duration-300 ease-out group-hover:translate-x-1" />
-                  </Link>
-                  <Link
-                    href="#"
-                    // eslint-disable-next-line tailwindcss/no-contradicting-classname
-                    className={cn(
-                      buttonVariants({
                         size: "lg",
                         variant: "outline",
                       }),
