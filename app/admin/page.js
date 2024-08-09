@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Box, Button, TextField, Typography, Container } from '@mui/material'
+import { Box, Button, TextField, Typography, Container, ThemeProvider } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import Navbar from '../../components/navbar'
+import theme from '../styles/theme';
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('')
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
     <Navbar />
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
@@ -83,6 +84,6 @@ export default function AdminDashboard() {
         </Button>
       </Box>
     </Container>
-    </>
+    </ThemeProvider>
   )
 }
