@@ -35,6 +35,7 @@ export default function AdminDashboard() {
 
     // Upload the file
     const formData = new FormData()
+    formData.append('file', file)
     const fileURL = await upload(formData)
 
     // Set the company name and file URL in the database
