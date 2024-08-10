@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { Box, Button, Container, Typography, AppBar, Toolbar, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import TypingEffect from 'react-typing-effect';
+import Features from '../../components/features';
+import Testimonials from '../../components/testimonials';
+import FAQ from '../../components/faq';
 
 const theme = createTheme({
   palette: {
@@ -31,17 +33,23 @@ const LandingPage = () => {
     router.push('/login');
   };
 
+
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            Customer Support AI
+            {/* image */}
           </Typography>
         </Toolbar>
       </AppBar>
+
+
       <Container maxWidth="md">
+
         <Box
           display="flex"
           flexDirection="column"
@@ -50,23 +58,19 @@ const LandingPage = () => {
           minHeight="80vh"
           textAlign="center"
         >
-          <Typography variant="h3" component="h1" gutterBottom color="textPrimary">
-            <TypingEffect
-              text={['Hi I\'m your Customer Support AI']}
-              speed={50}
-              eraseSpeed={50}
-              eraseDelay={2000}
-              typingDelay={500}
-              cursorRenderer={(cursor) => <Typography variant="h3" color="textPrimary">{cursor}</Typography>}
-            />
+
+          <Typography variant="h6" color="inherit">
+            Customer Support AI
           </Typography>
+
           <Button variant="contained" color="secondary" onClick={handleSignIn} sx={{ mt: 4 }}>
-            Landing
+            Get Started
           </Button>
+
         </Box>
 
         {/* Features Section */}
-        <Box
+        {/* <Box
           sx={{
             backgroundColor: theme.palette.background.default,
             padding: '2rem 0',
@@ -74,7 +78,26 @@ const LandingPage = () => {
             borderTop: `1px solid ${theme.palette.secondary.main}`,
           }}
         >
-        </Box>
+        </Box> */}
+
+
+        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+          Features
+        </Typography>
+        <Features />
+
+        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+          Testimonials
+        </Typography>
+        <Testimonials />
+
+
+        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+          FAQ
+        </Typography>
+        <FAQ />
+
+
       </Container>
     </ThemeProvider>
   );
