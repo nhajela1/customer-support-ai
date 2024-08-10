@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline } from '@mui/material';
+import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline, FormControlLabel, Checkbox } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { auth } from '../../utils/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { firestore } from '../../utils/firebase';
+import { useSearchParams } from 'next/navigation';
 
 const theme = createTheme({
   palette: {
@@ -33,6 +34,9 @@ const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const searchParams = useSearchParams();
+  const companyID = searchParams.get('companyID');
 
   const handleSignUp = async (event) => {
     event.preventDefault();
@@ -48,11 +52,16 @@ const SignUpPage = () => {
       // Create a new document for the user in Firestore
       await setDoc(doc(firestore, "users", user.uid), {
         email: user.email,
-        companyID: null, // This will be set later when the user creates a company
+        isAdmin: !companyID && isAdmin, // Only set as admin if no companyID and isAdmin is true
+        companyID: companyID || null,
         messages: []
       });
 
-      router.push('/admin'); // Redirect to admin page after sign up
+      if (!companyID && isAdmin) {
+        router.push('/admin'); // Redirect to admin page after sign up
+      } else {
+        router.push(`/chat${companyID ? `?companyID=${companyID}` : ''}`); // Redirect to chat page for regular users
+      }
     } catch (error) {
       let errorMessage = 'An error occurred. Please try again.';
       switch (error.code) {
@@ -155,6 +164,19 @@ const SignUpPage = () => {
                 },
               }}
             />
+            {!companyID && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isAdmin}
+                    onChange={(e) => setIsAdmin(e.target.checked)}
+                    name="isAdmin"
+                    color="primary"
+                  />
+                }
+                label="Sign up as Admin"
+              />
+            )}
             {error && <Typography color="error">{error}</Typography>}
             <Button
               type="submit"

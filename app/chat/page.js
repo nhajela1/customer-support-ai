@@ -2,7 +2,7 @@
 
 import { Container, Box, Button, Stack, TextField, ThemeProvider } from '@mui/material'
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import theme from '../styles/theme';
 import Navbar from '../../components/navbar';
 import { auth } from '../../utils/firebase';
@@ -10,9 +10,10 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firestore } from '../../utils/firebase';
 import { collection, addDoc, doc, setDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
 
-export default function LandingPage() {
+export default function ChatPage() {
 
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const companyID = searchParams.get('companyID');
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -23,23 +24,20 @@ export default function LandingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
   const [userEmail, setUserEmail] = useState(''); // State to hold user email
-  const [companyID, setCompanyID] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoggedIn(!!user);
       if (user) {
-        setUserEmail(user.email);
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsAdmin(userData.isAdmin || false);
+        }
         fetchUserMessages(user.uid);
-        fetchCompanyID(user.uid);
-      } else {
-        setUserEmail('');
-        setCompanyID('');
-        setMessages([
-          {
-            role: 'assistant',
-            content: "Hi! I'm a support assistant. How can I help you today?",
-          },
-        ]);
       }
     });
 
@@ -49,23 +47,18 @@ export default function LandingPage() {
   const fetchUserMessages = async (userId) => {
     const userRef = doc(firestore, 'users', userId);
     const userDoc = await getDoc(userRef);
-  
+
     if (userDoc.exists()) {
       const userData = userDoc.data();
       if (userData.messages && userData.messages.length > 0) {
         setMessages(userData.messages);
-      }
-    }
-  };
-
-  const fetchCompanyID = async (userId) => {
-    const userRef = doc(firestore, 'users', userId);
-    const userDoc = await getDoc(userRef);
-  
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      if (userData.companyID) {
-        setCompanyID(userData.companyID);
+      } else {
+        setMessages([
+          {
+            role: 'assistant',
+            content: "Hi! I'm a support assistant. How can I help you today?",
+          },
+        ]);
       }
     }
   };
@@ -138,26 +131,23 @@ export default function LandingPage() {
   };
 
   const clearMessages = async () => {
-    if (!auth.currentUser) return;
-  
-    try {
-      // Clear messages in UI
-      setMessages([
-        {
-          role: 'assistant',
-          content: "Hi! I'm a support assistant. How can I help you today?",
-        },
-      ]);
-  
-      // Clear messages in Firestore
-      const userRef = doc(firestore, 'users', auth.currentUser.uid);
-      await setDoc(userRef, {
-        messages: [],
-      }, { merge: true });
-  
-      console.log('Messages cleared successfully');
-    } catch (error) {
-      console.error('Error clearing messages:', error);
+    setMessages([
+      {
+        role: 'assistant',
+        content: "Hi! I'm a support assistant. How can I help you today?",
+      },
+    ]);
+
+    if (auth.currentUser) {
+      try {
+        const userRef = doc(firestore, 'users', auth.currentUser.uid);
+        await setDoc(userRef, {
+          messages: [],
+        }, { merge: true });
+        console.log('Messages cleared successfully');
+      } catch (error) {
+        console.error('Error clearing messages:', error);
+      }
     }
   };
 
@@ -181,10 +171,6 @@ export default function LandingPage() {
     }
   }
 
-  const handleAdminDashboard = () => {
-    router.push('/admin');
-  }
-
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -194,6 +180,10 @@ export default function LandingPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  const handleSignUp = () => {
+    router.push(`/signup?companyID=${companyID}`);
+  };
 
   return (
 
@@ -207,20 +197,30 @@ export default function LandingPage() {
         alignItems="center"
         p={8}
       >
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={handleAdminDashboard}
-        >
-          Admin Dashboard
-        </Button>
+        {isLoggedIn && isAdmin && (
+          <Button
+            variant="contained"
+            onClick={() => router.push('/admin')}
+            sx={{ mr: 2 }}
+          >
+            Admin Dashboard
+          </Button>
+        )}
         <Button
           variant="contained"
           onClick={clearMessages}
-          sx={{ ml: 2 }}
         >
           Clear Chat
         </Button>
+        {!isLoggedIn && (
+          <Button
+            variant="contained"
+            onClick={handleSignUp}
+            sx={{ ml: 2 }}
+          >
+            Sign Up to Save Messages
+          </Button>
+        )}
       </Box>
 
 
