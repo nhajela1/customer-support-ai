@@ -137,6 +137,30 @@ export default function LandingPage() {
     setMessages(updatedMessages);
   };
 
+  const clearMessages = async () => {
+    if (!auth.currentUser) return;
+  
+    try {
+      // Clear messages in UI
+      setMessages([
+        {
+          role: 'assistant',
+          content: "Hi! I'm a support assistant. How can I help you today?",
+        },
+      ]);
+  
+      // Clear messages in Firestore
+      const userRef = doc(firestore, 'users', auth.currentUser.uid);
+      await setDoc(userRef, {
+        messages: [],
+      }, { merge: true });
+  
+      console.log('Messages cleared successfully');
+    } catch (error) {
+      console.error('Error clearing messages:', error);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/'); // Redirect to the landing page after signing out
@@ -189,6 +213,13 @@ export default function LandingPage() {
           onClick={handleAdminDashboard}
         >
           Admin Dashboard
+        </Button>
+        <Button
+          variant="contained"
+          onClick={clearMessages}
+          sx={{ ml: 2 }}
+        >
+          Clear Chat
         </Button>
       </Box>
 
