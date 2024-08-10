@@ -5,8 +5,9 @@ import { AccountCircle, Logout } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../utils/firebase';
-import { usePathname } from 'next/navigation';
+import { auth, firestore } from '../utils/firebase';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Header = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -33,6 +34,7 @@ const HeaderContent = styled(Box)(({ theme }) => ({
 const HeaderText = styled(Typography)(({ theme }) => ({
   marginLeft: theme.spacing(1),
   fontSize: '1rem',
+  cursor: 'pointer',
   [theme.breakpoints.down('sm')]: {
     fontSize: '0.875rem',
   },
@@ -50,13 +52,23 @@ export default function Navbar() {
   const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState(null);
   const [userEmail, setUserEmail] = useState('');
+  const [isBotSetup, setIsBotSetup] = useState(false);
+  const [companyID, setCompanyID] = useState('');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email);
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setIsBotSetup(!!userData.companyID);
+          setCompanyID(userData.companyID || '');
+        }
       } else {
         setUserEmail('');
+        setIsBotSetup(false);
+        setCompanyID('');
       }
     });
 
@@ -76,31 +88,20 @@ export default function Navbar() {
     setAnchorEl(null);
   };
 
-  console.log(pathname)
-
+  const handleHeaderClick = () => {
+    if (isBotSetup) {
+      router.push(`/chat?companyID=${companyID}`);
+    } else {
+      alert('The bot is not set up yet. Please complete the setup in the admin dashboard.');
+    }
+  };
 
   return (
     <Header>
       <HeaderContent>
-        <a href="/" style={{ display: 'flex', alignItems: 'center', color: 'inherit', textDecoration: 'none' }}>
-          <HeaderText variant="h6" component="span">Customer Support AI</HeaderText>
-        </a>
-
-
-        {pathname === '/admin' && (
-          <CenterBox>
-            <a href="/chat" style={{
-              display: 'flex', justifyContent: 'center', color: 'inherit', textDecoration: 'none',
-              border: '1px solid #fff',
-              borderRadius: '8%',
-              cursor: 'pointer',
-              padding: '3px 10px 3px 3px',
-            }}>
-              <HeaderText variant="h6" component="span">Chat</HeaderText>
-            </a>
-          </CenterBox>
-        )}
-
+        <HeaderText variant="h6" component="span" onClick={handleHeaderClick}>
+          Customer Support AI
+        </HeaderText>
         <IconButton
           onClick={handleMenuOpen}
           color="inherit"

@@ -5,18 +5,17 @@ import { setDoc, doc } from "firebase/firestore";
 export async function POST(req) {
   const data = await req.json();
   console.log("Data: ", data);
-  const companyID = data.companyID;
+  const { companyID, companyName, fileURL, description } = data;
   console.log("Company ID: ", companyID);
-  const companyName = data.companyName;
   console.log("Company Name: ", companyName);
-  const fileURL = data.fileURL;
   console.log("File URL: ", fileURL);
+  console.log("Description: ", description);
 
-  // Add a new document with a generated ID
   try {
     await setDoc(doc(firestore, "companies", companyID), {
-      companyName: companyName,
-      fileURL: fileURL,
+      companyName,
+      fileURL,
+      description,
     });
     return NextResponse.json({ success: true });
   } catch (e) {
