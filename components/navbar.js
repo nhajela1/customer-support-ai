@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, firestore } from '../utils/firebase';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 
 const Header = styled(Box)(({ theme }) => ({
