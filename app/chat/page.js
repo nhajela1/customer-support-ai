@@ -137,18 +137,6 @@ export default function LandingPage() {
     setMessages(updatedMessages);
   };
 
-  const handleSignOut = async () => {
-    await signOut(auth);
-    router.push('/'); // Redirect to the landing page after signing out
-  };
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
