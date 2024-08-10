@@ -61,7 +61,7 @@ const LandingPage = () => {
             />
           </Typography>
           <Button variant="contained" color="secondary" onClick={handleSignIn} sx={{ mt: 4 }}>
-            Landing
+            Sign In
           </Button>
         </Box>
 
