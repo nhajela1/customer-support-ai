@@ -3,9 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { Box, Button, Container, Typography, AppBar, Toolbar, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import MainSection from '../../components/main-section';
 import Features from '../../components/features';
 import Testimonials from '../../components/testimonials';
 import FAQ from '../../components/faq';
+import ContactForm from '../../components/contact-form';
+
 
 const theme = createTheme({
   palette: {
@@ -17,7 +20,7 @@ const theme = createTheme({
       main: '#e5e7eb', // Light grey
     },
     background: {
-      default: '#000000', // Black background
+      default: '#fffff', // Black background
     },
     text: {
       primary: '#ffffff', // White text
@@ -37,20 +40,19 @@ const LandingPage = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
+      {/* <CssBaseline /> */}
 
-      <AppBar position="static" color="primary">
+      {/* <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            {/* image */}
           </Typography>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
 
 
       <Container maxWidth="md">
 
-        <Box
+        {/* <Box
           display="flex"
           flexDirection="column"
           alignItems="center"
@@ -67,7 +69,7 @@ const LandingPage = () => {
             Get Started
           </Button>
 
-        </Box>
+        </Box> */}
 
         {/* Features Section */}
         {/* <Box
@@ -80,22 +82,28 @@ const LandingPage = () => {
         >
         </Box> */}
 
+        <MainSection />
 
-        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
           Features
         </Typography>
         <Features />
 
-        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+
+        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
           Testimonials
         </Typography>
         <Testimonials />
 
 
-        <Typography variant="h4" sx={{ mt: 4, mb: 2 }} >
+        <Typography variant="h4" sx={{ mt: 8,  mb: 2 }} >
           FAQ
         </Typography>
         <FAQ />
+
+        <ContactForm />
+
+
 
 
       </Container>

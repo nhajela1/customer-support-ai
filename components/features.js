@@ -12,23 +12,23 @@ export default function Features() {
   const features = [
     {
       icon: <RocketLaunchIcon sx={{ fontSize: 50, color: '#1a73e8' }} />,
-      title: 'Blazing Fast',
-      description: 'Lorem ipsum dolor amet consectetur adipiscing elit.',
+      title: 'AI-Powered Query Resolution',
+      description: 'The AI chatbot resolves customer queries in real-time using natural language processing.',
     },
     {
       icon: <CloudIcon sx={{ fontSize: 50, color: '#1a73e8' }} />,
-      title: 'SaaS Focused',
-      description: 'Lorem ipsum dolor amet consectetur adipiscing elit.',
+      title: 'Personalized Responses',
+      description: 'The chatbot provides responses tailored to individual customer needs based on past interactions.',
     },
     {
       icon: <BrushIcon sx={{ fontSize: 50, color: '#1a73e8' }} />,
-      title: 'Clean Design',
-      description: 'Lorem ipsum dolor amet consectetur adipiscing elit.',
+      title: '24/7 Availability',
+      description: 'The AI chatbot is available around the clock, ensuring immediate customer support.',
     },
     {
       icon: <CodeIcon sx={{ fontSize: 50, color: '#1a73e8' }} />,
-      title: 'Bootstrap 5',
-      description: 'Lorem ipsum dolor amet consectetur adipiscing elit.',
+      title: 'Customizable Chatbot',
+      description: 'Companies can tailor the chatbot’s tone and style to match their brand identity.',
     },
   ];
 
