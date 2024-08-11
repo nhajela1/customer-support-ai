@@ -41,7 +41,7 @@ export default function ContactForm() {
           Contact Us
         </Typography>
         <Typography variant="body1" align="center" color="black" paragraph>
-          We'd love to hear from you! Please fill out the form below and we'll get in touch as soon as possible.
+          We&apos;d love to hear from you! Please fill out the form below and we&apos;ll get in touch as soon as possible.
         </Typography>
         <form onSubmit={handleSubmit} noValidate autoComplete="off">
           <Grid container spacing={2}>
