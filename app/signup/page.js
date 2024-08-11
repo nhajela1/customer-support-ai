@@ -34,7 +34,8 @@ const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
+  const [companyName, setCompanyName] = useState('');
   const searchParams = useSearchParams();
   const companyID = searchParams.get('companyID');
 
@@ -45,22 +46,30 @@ const SignUpPage = () => {
       return;
     }
 
+    let finalCompanyID = companyID;
+    if (!isAdmin && !companyID) {
+      if (!companyName.trim()) {
+        setError('Company name is required for non-admin users.');
+        return;
+      }
+      finalCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Create a new document for the user in Firestore
       await setDoc(doc(firestore, "users", user.uid), {
         email: user.email,
-        isAdmin: !companyID && isAdmin, // Only set as admin if no companyID and isAdmin is true
-        companyID: companyID || null,
+        isAdmin: isAdmin,
+        companyID: finalCompanyID,
         messages: []
       });
 
-      if (!companyID && isAdmin) {
-        router.push('/admin'); // Redirect to admin page after sign up
+      if (isAdmin) {
+        router.push('/admin');
       } else {
-        router.push(`/chat${companyID ? `?companyID=${companyID}` : ''}`); // Redirect to chat page for regular users
+        router.push(`/chat?companyID=${finalCompanyID}`);
       }
     } catch (error) {
       let errorMessage = 'An error occurred. Please try again.';
@@ -164,17 +173,52 @@ const SignUpPage = () => {
                 },
               }}
             />
-            {!companyID && (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isAdmin}
-                    onChange={(e) => setIsAdmin(e.target.checked)}
-                    name="isAdmin"
-                    color="primary"
-                  />
-                }
-                label="Sign up as Admin"
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isAdmin}
+                  onChange={(e) => setIsAdmin(e.target.checked)}
+                  name="isAdmin"
+                  sx={{
+                    color: theme.palette.secondary.main,
+                    '&.Mui-checked': {
+                      color: theme.palette.secondary.main,
+                    },
+                  }}
+                />
+              }
+              label={
+                <Typography sx={{ color: theme.palette.secondary.main, fontWeight: 'bold' }}>
+                  Sign up as Admin
+                </Typography>
+              }
+            />
+            {!isAdmin && !companyID && (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="companyName"
+                label="Company Name"
+                id="companyName"
+                variant="outlined"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                InputLabelProps={{ style: { color: theme.palette.text.primary } }}
+                InputProps={{
+                  style: { color: theme.palette.text.primary },
+                  sx: {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.secondary.main,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.text.primary,
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.text.primary,
+                    },
+                  },
+                }}
               />
             )}
             {error && <Typography color="error">{error}</Typography>}

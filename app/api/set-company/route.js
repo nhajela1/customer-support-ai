@@ -5,17 +5,19 @@ import { setDoc, doc } from "firebase/firestore";
 export async function POST(req) {
   const data = await req.json();
   console.log("Data: ", data);
-  const { companyID, companyName, fileURL, description } = data;
+  const { companyID, companyName, fileURL, description, systemPrompt } = data;
   console.log("Company ID: ", companyID);
   console.log("Company Name: ", companyName);
   console.log("File URL: ", fileURL);
   console.log("Description: ", description);
+  console.log("System Prompt: ", systemPrompt);
 
   try {
     await setDoc(doc(firestore, "companies", companyID), {
       companyName,
       fileURL,
       description,
+      systemPrompt, // Add this line to include the systemPrompt
     });
     return NextResponse.json({ success: true });
   } catch (e) {

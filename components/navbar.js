@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, firestore } from '../utils/firebase';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 
 const Header = styled(Box)(({ theme }) => ({
@@ -50,6 +50,7 @@ const CenterBox = styled(Box)({
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState(null);
   const [userEmail, setUserEmail] = useState('');
   const [isBotSetup, setIsBotSetup] = useState(false);

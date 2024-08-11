@@ -79,7 +79,7 @@ export default function AdminDashboard() {
   const updateCompanyDetails = async () => {
     if (!companyName) {
       console.error('Company name is required');
-      return false;
+      return null;
     }
 
     let fileURL = null;
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
       fileURL = file.url;
     }
 
-    const updatedCompanyID = companyID || companyName.trim().toLowerCase().replace(/\s+/g, '-');
+    const updatedCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
     
     const databaseResponse = await fetch('/api/set-company', {
       method: 'POST',
@@ -107,29 +107,26 @@ export default function AdminDashboard() {
 
     if (!databaseResponse.ok) {
       console.error('Failed to update company data');
-      return false;
+      return null;
     }
 
-    if (!companyID) {
-      const user = auth.currentUser;
-      if (!user) {
-        console.error('No user is currently signed in');
-        return false;
-      }
-
-      try {
-        await updateDoc(doc(firestore, "users", user.uid), {
-          companyID: updatedCompanyID
-        });
-        console.log('Company ID associated with user successfully');
-        setCompanyID(updatedCompanyID);
-      } catch (error) {
-        console.error('Failed to associate company with user:', error);
-        return false;
-      }
+    const user = auth.currentUser;
+    if (!user) {
+      console.error('No user is currently signed in');
+      return null;
     }
 
-    setCompanyID(updatedCompanyID);
+    try {
+      await updateDoc(doc(firestore, "users", user.uid), {
+        companyID: updatedCompanyID
+      });
+      console.log('Company ID associated with user successfully');
+      setCompanyID(updatedCompanyID);
+    } catch (error) {
+      console.error('Failed to associate company with user:', error);
+      return null;
+    }
+
     return updatedCompanyID;
   };
 
@@ -161,18 +158,15 @@ export default function AdminDashboard() {
       return false;
     }
 
-    if (!companyID) {
-      console.error('Company ID is missing. This should not happen.');
-      return false;
-    }
-
-    console.log('Attempting to set system prompt:', { companyID, systemPrompt: prompt });
+    const updatedCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
+    
+    console.log('Attempting to set system prompt:', { companyID: updatedCompanyID, systemPrompt: prompt });
 
     try {
       const setPromptResponse = await fetch('/api/set-system-prompt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyID, systemPrompt: prompt }),
+        body: JSON.stringify({ companyID: updatedCompanyID, systemPrompt: prompt }),
       });
 
       if (!setPromptResponse.ok) {
@@ -218,18 +212,11 @@ export default function AdminDashboard() {
       }
       console.log("System prompt set successfully");
 
-      if (!companyID) {
-        console.error("CompanyID is not set. Cannot route to chat.");
-        setOpenSnackbar(true);
-        setSnackbarMessage("Error: Company ID not set");
-        return;
-      }
-
       setOpenSnackbar(true);
       setSnackbarMessage("Company setup completed successfully");
-      console.log("Attempting to route to:", `/chat?companyID=${companyID}`);
+      console.log("Attempting to route to:", `/chat?companyID=${updatedCompanyID}`);
       
-      await router.push(`/chat?companyID=${companyID}`);
+      await router.push(`/chat?companyID=${updatedCompanyID}`);
     } catch (error) {
       console.error("Error in handleFirstTimeSubmit:", error);
       setOpenSnackbar(true);

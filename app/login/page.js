@@ -1,11 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { auth, googleProvider } from '../../utils/firebase';
+import { auth, googleProvider, firestore } from '../../utils/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 const theme = createTheme({
   palette: {
@@ -28,6 +29,7 @@ const theme = createTheme({
 
 const SignInPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,8 +37,26 @@ const SignInPage = () => {
   const handleSignIn = async (event) => {
     event.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/chat');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Retrieve user data from Firestore
+      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.isAdmin) {
+          router.push('/admin');
+        } else {
+          const companyID = userData.companyID || searchParams.get('companyID');
+          if (companyID) {
+            router.push(`/chat?companyID=${companyID}`);
+          } else {
+            setError('No company ID associated with this account. Please contact support.');
+          }
+        }
+      } else {
+        setError('User data not found. Please contact support.');
+      }
     } catch (error) {
       let errorMessage = 'An error occurred. Please try again.';
       switch (error.code) {
@@ -57,15 +77,43 @@ const SignInPage = () => {
   };
 
   const handleSignUp = () => {
-    router.push('/signup');
+    const companyID = searchParams.get('companyID');
+    router.push(`/signup${companyID ? `?companyID=${companyID}` : ''}`);
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      router.push('/chat');
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Check if the user already exists in Firestore
+      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+      if (!userDoc.exists()) {
+        // If the user doesn't exist, create a new document
+        const companyID = searchParams.get('companyID');
+        await setDoc(doc(firestore, 'users', user.uid), {
+          email: user.email,
+          isAdmin: false,
+          companyID: companyID || null,
+          messages: []
+        });
+      }
+
+      // Retrieve user data and route accordingly
+      const userData = userDoc.exists() ? userDoc.data() : { isAdmin: false, companyID: searchParams.get('companyID') };
+      if (userData.isAdmin) {
+        router.push('/admin');
+      } else {
+        const companyID = userData.companyID || searchParams.get('companyID');
+        if (companyID) {
+          router.push(`/chat?companyID=${companyID}`);
+        } else {
+          setError('No company ID associated with this account. Please contact support.');
+        }
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error);
+      setError('Failed to sign in with Google. Please try again.');
     }
   };
 
