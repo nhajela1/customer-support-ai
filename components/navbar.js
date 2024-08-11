@@ -76,7 +76,7 @@ export default function Navbar() {
     setAnchorEl(null);
   };
 
-  console.log(pathname)
+  // console.log(pathname)
 
 
   return (
