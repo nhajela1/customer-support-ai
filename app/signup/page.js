@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Suspense } from 'react';
 import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline, FormControlLabel, Checkbox } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { auth } from '../../utils/firebase';
@@ -95,6 +96,7 @@ const SignUpPage = () => {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -243,6 +245,7 @@ const SignUpPage = () => {
         </Box>
       </Container>
     </ThemeProvider>
+    </Suspense>
   );
 };
 

@@ -7,6 +7,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { auth, googleProvider, firestore } from '../../utils/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { Suspense } from 'react';
 
 const theme = createTheme({
   palette: {
@@ -118,6 +119,7 @@ const SignInPage = () => {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -226,6 +228,7 @@ const SignInPage = () => {
         </Box>
       </Container>
     </ThemeProvider>
+    </Suspense>
   );
 };
 

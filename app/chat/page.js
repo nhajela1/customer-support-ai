@@ -9,6 +9,7 @@ import { auth } from '../../utils/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firestore } from '../../utils/firebase';
 import { collection, addDoc, doc, setDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
+import { Suspense } from 'react';
 
 export default function ChatPage() {
 
@@ -186,7 +187,7 @@ export default function ChatPage() {
   };
 
   return (
-
+    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
 
       <Navbar />
@@ -297,5 +298,6 @@ export default function ChatPage() {
         </Stack>
       </Box>
     </ThemeProvider>
+    </Suspense>
   )
 }
