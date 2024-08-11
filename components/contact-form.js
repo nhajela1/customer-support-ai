@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, Grid, Box } from '@mui/material';
 
-
-
 export default function ContactForm() {
-
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
     subject: '',
-    phone: '',
+    email: '',
     message: '',
   });
 
@@ -33,13 +28,11 @@ export default function ContactForm() {
 
     if (response.ok) {
       alert('Your message has been sent!');
-      setFormData({ name: '', email: '', subject: '', phone: '', message: '' });
+      setFormData({ subject: '', email: '', message: '' });
     } else {
       alert('There was a problem sending your message.');
     }
   };
-
-
 
   return (
     <Box my={4}>
@@ -52,57 +45,19 @@ export default function ContactForm() {
         </Typography>
         <form onSubmit={handleSubmit} noValidate autoComplete="off">
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="outlined"
-                label="Your Name"
-                fullWidth
-                value={formData.name}
-                onChange={handleChange}
-                InputProps={{
-                  style: {
-                    borderColor: '#000', // Darker border color
-                    color: '#000', // Darker text color
-                  },
-                }}
-                InputLabelProps={{
-                  style: {
-                    color: '#000', // Darker label color
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="outlined"
-                label="Your E-mail"
-                fullWidth
-                value={formData.email}
-                onChange={handleChange}
-                InputProps={{
-                  style: {
-                    borderColor: '#000',
-                    color: '#000', // Darker text color
-                  },
-                }}
-                InputLabelProps={{
-                  style: {
-                    color: '#000',
-                  },
-                }}
-              />
-            </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 variant="outlined"
                 label="Subject"
+                name="subject"
                 fullWidth
                 value={formData.subject}
                 onChange={handleChange}
                 InputProps={{
                   style: {
                     borderColor: '#000',
-                    color: '#000', // Darker text color
+                    color: '#000',
                   },
                 }}
                 InputLabelProps={{
@@ -112,17 +67,19 @@ export default function ContactForm() {
                 }}
               />
             </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 variant="outlined"
-                label="Phone Number"
+                label="Your E-mail"
+                name="email"
                 fullWidth
-                value={formData.phone}
+                value={formData.email}
                 onChange={handleChange}
                 InputProps={{
                   style: {
                     borderColor: '#000',
-                    color: '#000', // Darker text color
+                    color: '#000',
                   },
                 }}
                 InputLabelProps={{
@@ -132,10 +89,13 @@ export default function ContactForm() {
                 }}
               />
             </Grid>
+
+
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 label="Message"
+                name="message"
                 multiline
                 rows={4}
                 fullWidth
@@ -144,7 +104,7 @@ export default function ContactForm() {
                 InputProps={{
                   style: {
                     borderColor: '#000',
-                    color: '#000', // Darker text color
+                    color: '#000',
                   },
                 }}
                 InputLabelProps={{
@@ -164,4 +124,4 @@ export default function ContactForm() {
       </Container>
     </Box>
   );
-};
+}
