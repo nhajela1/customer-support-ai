@@ -1,7 +1,7 @@
 'use client'
 
 import { Container, Box, Button, Stack, TextField, ThemeProvider } from '@mui/material'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation';
 import theme from '../styles/theme';
 import Navbar from '../../components/navbar';
@@ -9,10 +9,8 @@ import { auth } from '../../utils/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firestore } from '../../utils/firebase';
 import { collection, addDoc, doc, setDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
-import { Suspense } from 'react';
 
-export default function ChatPage() {
-
+const ChatPage = () => {
   const searchParams = useSearchParams();
   const companyID = searchParams.get('companyID');
   const [messages, setMessages] = useState([
@@ -187,7 +185,6 @@ export default function ChatPage() {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
 
       <Navbar />
@@ -298,6 +295,13 @@ export default function ChatPage() {
         </Stack>
       </Box>
     </ThemeProvider>
-    </Suspense>
   )
 }
+
+const ChatPageWrapper = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <ChatPage />
+  </Suspense>
+);
+
+export default ChatPageWrapper;

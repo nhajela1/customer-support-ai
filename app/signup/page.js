@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Suspense } from 'react';
 import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline, FormControlLabel, Checkbox } from '@mui/material';
@@ -9,7 +9,6 @@ import { auth } from '../../utils/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { firestore } from '../../utils/firebase';
-import { useSearchParams } from 'next/navigation';
 
 const theme = createTheme({
   palette: {
@@ -32,12 +31,12 @@ const theme = createTheme({
 
 const SignUpPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isAdmin, setIsAdmin] = useState(true);
   const [companyName, setCompanyName] = useState('');
-  const searchParams = useSearchParams();
   const companyID = searchParams.get('companyID');
 
   const handleSignUp = async (event) => {
@@ -96,7 +95,6 @@ const SignUpPage = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -245,8 +243,13 @@ const SignUpPage = () => {
         </Box>
       </Container>
     </ThemeProvider>
-    </Suspense>
   );
 };
 
-export default SignUpPage;
+const SignUpPageWrapper = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <SignUpPage />
+  </Suspense>
+);
+
+export default SignUpPageWrapper;

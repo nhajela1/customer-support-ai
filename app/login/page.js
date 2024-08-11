@@ -119,7 +119,6 @@ const SignInPage = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -228,8 +227,13 @@ const SignInPage = () => {
         </Box>
       </Container>
     </ThemeProvider>
-    </Suspense>
   );
 };
 
-export default SignInPage;
+const SignInPageWrapper = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <SignInPage />
+  </Suspense>
+);
+
+export default SignInPageWrapper;
