@@ -60,18 +60,12 @@ export default function FAQ() {
   };
 
   const faqData = [
-    { question: 'What is Cult Wines?', answer: 'Cult Wines is...' },
-    { question: 'What sets Cult Wines Investment apart?', answer: 'Cult Wines Investment stands out due to...' },
-    { question: 'Can you tell me about your CSR / ESG initiatives?', answer: 'Our CSR / ESG initiatives include...' },
-    { question: 'What services do you provide?', answer: 'We offer services such as...' },
-    { question: 'How does wine investing work?', answer: 'Wine investing works by...' },
-    { question: 'Is investing in wine suitable for me?', answer: 'Wine investment may be suitable for...' },
-    { question: 'How is wine investment regulated?', answer: 'Wine investment is regulated by...' },
-    { question: 'What regions does Cult Wines invest in?', answer: 'We invest in regions such as...' },
-    { question: 'What are the recommended investment terms?', answer: 'The recommended investment terms are...' },
-    { question: 'How can I sell my wine?', answer: 'You can sell your wine by...' },
-    { question: 'How quickly can I liquidate my portfolio?', answer: 'You can liquidate your portfolio by...' },
-    { question: 'Where is the wine stored?', answer: 'The wine is stored in...' },
+    { question: 'What is BOT.ai?', answer: 'The Customer Support AI Chatbot is an AI-powered chatbot that resolves customer queries in real-time using natural language processing.' },
+    { question: 'How can I use BOT.ai?', answer: 'You can use the chatbot by integrating it into your website or mobile application. It can be used to provide customers with individualized responses based on their needs, and even generate tickets if further assistance is required.' },
+    { question: 'Is BOT.ai customizable?', answer: 'Yes, the chatbot is customizable. Companies can tailor the chatbot’s tone and style to match their brand identity. Organization administrators can configure the bot by providing a specific description of the services via text entry and document upload.' },
+    { question: 'What are the benefits of using BOT.ai?', answer: 'The chatbot allows enterprises to scale their customer support operations by providing 24/7 automated assistance. It can handle a large volume of customer queries simultaneously, ensuring immediate support for customers.' },
+    { question: 'How does BOT.ai work?', answer: 'The chatbot uses natural language processing to understand customer queries and provide relevant responses. It can be trained to recognize specific keywords and phrases based on your organization\'s offerings, enabling it to provide accurate and personalized responses to customers.' },
+    { question: 'How can I get assistance integrating BOT.ai?', answer: 'If you need assistance integrating the chatbot into your website or mobile application, please contact our support team by filling out the contact form below. Our team will be happy to assist you with the integration process.' }
   ];
 
   return (
