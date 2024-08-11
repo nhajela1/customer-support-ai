@@ -132,6 +132,7 @@ const SignUpPage = () => {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -288,6 +289,7 @@ const SignUpPage = () => {
         </Box>
       </Container>
     </ThemeProvider>
+    </Suspense>
   );
 };
 
