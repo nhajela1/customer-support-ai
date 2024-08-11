@@ -234,9 +234,10 @@ export default function ChatPage() {
       >
         <Stack
           direction={'column'}
-          width="500px"
-          height="700px"
+          width="90%"
+          height="70%"
           border="1px solid black"
+          borderRadius={5}
           p={2}
           spacing={3}
         >
@@ -261,8 +262,12 @@ export default function ChatPage() {
                       ? 'primary.main'
                       : 'secondary.main'
                   }
-                  color="white"
-                  borderRadius={16}
+                  color={
+                    message.role === 'assistant'
+                      ? 'white'
+                      : 'black'
+                  }
+                  borderRadius={8}
                   p={3}
                 >
                   {message.content}

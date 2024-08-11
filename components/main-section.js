@@ -32,7 +32,7 @@ const MainSection = () => {
   return (
 
     <div>
-    
+
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
           <Typography variant="h6" color="inherit" sx={{ flexGrow: 1 }}>
@@ -81,13 +81,13 @@ const MainSection = () => {
             </Button>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Box sx={{ position: 'relative', width: '100%', height: 'auto' }}>
+            <Box sx={{ position: 'relative', width: '100%', height: 'auto', border: '1px solid black'}}>
               <Image
-                src="/homepage-screenshot.png" // Replace with your actual image path
-                alt="Home Page Screenshot"
+                src="/chatbot.png" // Replace with your actual image path
+                alt="conversation with chatbot"
                 layout="responsive"
                 width={700}
-                height={475}
+                height={800}
               />
             </Box>
           </Grid>
