@@ -9,7 +9,6 @@ import { auth } from '../../utils/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { firestore } from '../../utils/firebase';
 import { collection, addDoc, doc, setDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
-import { Suspense } from 'react';
 
 const ChatPage = () => {
   const searchParams = useSearchParams();

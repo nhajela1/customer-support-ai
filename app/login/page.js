@@ -86,7 +86,6 @@ export default function SignInPage() {
 
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" color="primary">
@@ -188,7 +187,6 @@ export default function SignInPage() {
         </Box>
       </Container>
     </ThemeProvider>
-    </Suspense>
   );
 };
 
