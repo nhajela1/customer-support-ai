@@ -1,18 +1,21 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react';
-import { Box, Button, TextField, Typography, Container, ThemeProvider, Snackbar, Switch, FormControlLabel } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, ThemeProvider, Snackbar, Switch, FormControlLabel, IconButton, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/navbar';
 import theme from '../styles/theme';
 import { upload } from '@/action/upload';
-import { auth, firestore } from '@/utils/firebase';
+import { auth, firestore, storage } from '@/utils/firebase';
 import { updateDoc, doc, getDoc } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState('');
   const [userLink, setUserLink] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [companyID, setCompanyID] = useState('');
@@ -22,6 +25,9 @@ export default function AdminDashboard() {
   const router = useRouter();
   const linkRef = useRef(null);
   const [snackbarMessage, setSnackbarMessage] = useState("Operation completed successfully");
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
 
   const handleCompanyNameChange = (e) => {
     const newCompanyName = e.target.value;
@@ -60,7 +66,8 @@ export default function AdminDashboard() {
               setSystemPrompt(companyData.systemPrompt || '');
               setInitialSystemPrompt(companyData.systemPrompt || '');
               if (companyData.fileURL) {
-                setFile({ name: 'Existing document', url: companyData.fileURL });
+                setFile({ name: companyData.fileName || 'Existing document', url: companyData.fileURL });
+                setFileName(companyData.fileName || 'Existing document');
               }
               generateUserLink(userData.companyID);
             }
@@ -73,7 +80,9 @@ export default function AdminDashboard() {
   }, []);
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setFileName(selectedFile.name);
   };
 
   const updateCompanyDetails = async () => {
@@ -100,6 +109,7 @@ export default function AdminDashboard() {
         companyID: updatedCompanyID, 
         companyName, 
         fileURL, 
+        fileName,
         description,
         systemPrompt
       }),
@@ -130,20 +140,32 @@ export default function AdminDashboard() {
     return updatedCompanyID;
   };
 
-  const generateSystemPrompt = async () => {
-    if (!description) {
-      console.error('Company description is required to generate system prompt');
-      return null;
+  const validateInputs = () => {
+    if (!companyName.trim()) {
+      setError('Company name is required');
+      return false;
     }
+    if (!description.trim()) {
+      setError('Company description is required');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
+  const generateSystemPrompt = async () => {
+    if (!validateInputs()) return null;
 
     const sysPromptResponse = await fetch('/api/generate-system-prompt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description }),
+      body: JSON.stringify({ companyName, description }),
     });
 
     if (!sysPromptResponse.ok) {
-      console.error('Failed to generate system prompt');
+      console.error('Failed to generate system prompt:', sysPromptResponse.status);
+      setSnackbarMessage("Failed to generate system prompt");
+      setOpenSnackbar(true);
       return null;
     }
 
@@ -184,9 +206,15 @@ export default function AdminDashboard() {
   };
 
   const handleFirstTimeSubmit = async () => {
+    if (!validateInputs()) return;
+
+    setLoading(true);
+    setLoadingMessage("Creating your chatbot...");
+
     try {
       const updatedCompanyID = await updateCompanyDetails();
       if (!updatedCompanyID) {
+        setLoading(false);
         setOpenSnackbar(true);
         setSnackbarMessage("Failed to update company details");
         return;
@@ -196,6 +224,7 @@ export default function AdminDashboard() {
 
       const generatedPrompt = await generateSystemPrompt();
       if (!generatedPrompt) {
+        setLoading(false);
         setOpenSnackbar(true);
         setSnackbarMessage("Failed to generate system prompt");
         return;
@@ -206,12 +235,14 @@ export default function AdminDashboard() {
 
       const promptSet = await updateSystemPrompt(generatedPrompt);
       if (!promptSet) {
+        setLoading(false);
         setOpenSnackbar(true);
         setSnackbarMessage("Failed to set system prompt");
         return;
       }
       console.log("System prompt set successfully");
 
+      setLoading(false);
       setOpenSnackbar(true);
       setSnackbarMessage("Company setup completed successfully");
       console.log("Attempting to route to:", `/chat?companyID=${updatedCompanyID}`);
@@ -219,31 +250,53 @@ export default function AdminDashboard() {
       await router.push(`/chat?companyID=${updatedCompanyID}`);
     } catch (error) {
       console.error("Error in handleFirstTimeSubmit:", error);
+      setLoading(false);
       setOpenSnackbar(true);
       setSnackbarMessage("An error occurred during setup");
     }
   };
 
   const handleUpdateCompanyAndSetPrompt = async () => {
+    setLoading(true);
+    setLoadingMessage("Updating details...");
+
     const companyUpdated = await updateCompanyDetails();
-    if (!companyUpdated) return;
+    if (!companyUpdated) {
+      setLoading(false);
+      return;
+    }
 
     if (systemPrompt !== initialSystemPrompt) {
       const promptSet = await updateSystemPrompt();
-      if (!promptSet) return;
+      if (!promptSet) {
+        setLoading(false);
+        return;
+      }
     }
 
+    setLoading(false);
     setOpenSnackbar(true);
+    setSnackbarMessage("Company details updated successfully");
+    router.push(`/chat?companyID=${companyID}`);
   };
 
   const handleGenerateAndSetPrompt = async () => {
+    if (!validateInputs()) return;
+
+    setLoading(true);
+    setLoadingMessage("Generating new system prompt...");
+
     const promptGenerated = await generateSystemPrompt();
-    if (!promptGenerated) return;
+    if (!promptGenerated) {
+      setLoading(false);
+      return;
+    }
 
-    const promptSet = await updateSystemPrompt(promptGenerated);
-    if (!promptSet) return;
-
+    setSystemPrompt(promptGenerated);
+    setInitialSystemPrompt(promptGenerated);
+    setLoading(false);
     setOpenSnackbar(true);
+    setSnackbarMessage("New system prompt generated");
   };
 
   const copyToClipboard = () => {
@@ -251,6 +304,38 @@ export default function AdminDashboard() {
       linkRef.current.select();
       document.execCommand('copy');
       setOpenSnackbar(true);
+    }
+  };
+
+  const handleRemoveFile = async () => {
+    if (file && file.url) {
+      try {
+        const fileRef = ref(storage, file.url);
+        await deleteObject(fileRef);
+        
+        const updatedCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
+        await fetch('/api/set-company', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            companyID: updatedCompanyID, 
+            companyName, 
+            fileURL: null, 
+            fileName: null,
+            description,
+            systemPrompt
+          }),
+        });
+
+        setFile(null);
+        setFileName('');
+        setOpenSnackbar(true);
+        setSnackbarMessage("File removed successfully");
+      } catch (error) {
+        console.error("Error removing file:", error);
+        setOpenSnackbar(true);
+        setSnackbarMessage("Failed to remove file");
+      }
     }
   };
 
@@ -292,35 +377,47 @@ export default function AdminDashboard() {
               onChange={handleFileChange}
             />
           </Button>
-          {file && <Typography sx={{ mb: 2 }}>{file.name}</Typography>}
+          {file && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography sx={{ flexGrow: 1 }}>{fileName}</Typography>
+              <IconButton onClick={handleRemoveFile} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          )}
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
           {!systemPrompt ? (
             <Button
               fullWidth
               variant="contained"
               onClick={handleFirstTimeSubmit}
               sx={{ mb: 2 }}
+              disabled={loading}
             >
-              Submit
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Submit"
+              )}
             </Button>
           ) : (
-            <>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleUpdateCompanyAndSetPrompt}
-                sx={{ mb: 2 }}
-              >
-                Update Company Details
-              </Button>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleGenerateAndSetPrompt}
-                sx={{ mb: 2 }}
-              >
-                Generate New System Prompt
-              </Button>
-            </>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleGenerateAndSetPrompt}
+              sx={{ mb: 2 }}
+              disabled={loading}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Generate New System Prompt"
+              )}
+            </Button>
           )}
           {systemPrompt && (
             <Box sx={{ mb: 2 }}>
@@ -345,6 +442,19 @@ export default function AdminDashboard() {
                   sx={{ mt: 2, mb: 2 }}
                 />
               )}
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleUpdateCompanyAndSetPrompt}
+                sx={{ mb: 2 }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
             </Box>
           )}
           {userLink && (
@@ -376,6 +486,28 @@ export default function AdminDashboard() {
         onClose={() => setOpenSnackbar(false)}
         message={snackbarMessage}
       />
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            flexDirection: 'column',
+          }}
+        >
+          <CircularProgress size={60} />
+          <Typography variant="h6" sx={{ mt: 2, color: 'white' }}>
+            {loadingMessage}
+          </Typography>
+        </Box>
+      )}
     </ThemeProvider>
   )
 }
