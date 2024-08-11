@@ -5,7 +5,6 @@ import { Box, Button, Container, Typography, AppBar, Toolbar, CssBaseline } from
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MainSection from '../../components/main-section';
 import Features from '../../components/features';
-import Testimonials from '../../components/testimonials';
 import FAQ from '../../components/faq';
 import ContactForm from '../../components/contact-form';
 
@@ -90,13 +89,6 @@ const LandingPage = () => {
           Features
         </Typography>
         <Features />
-
-
-        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
-          Testimonials
-        </Typography>
-        <Testimonials />
-
 
         <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
           FAQ
