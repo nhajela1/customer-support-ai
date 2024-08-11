@@ -7,6 +7,7 @@ import NavBar from './navbar';
 import { useRouter } from 'next/navigation';
 // import { useRouter } from 'next/router';
 import Link from 'next/link';
+import LinkContainer from './box';
 
 const MainSection = () => {
 
@@ -35,8 +36,15 @@ const MainSection = () => {
 
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
-          <Typography variant="h6" color="inherit" sx={{ flexGrow: 1 }}>
-            <Image src="/chatbot-logo.png" alt="SaaSLand" width={120} height={120} />
+          <Typography variant="h6" color="inherit"
+            sx={{
+              flexGrow: 1,
+              '&:hover img': {
+                transform: 'scale(1.25)', // Scale the image to 110% on hover
+                transition: 'transform 0.3s ease-in-out', // Smooth transition
+              },
+            }}>
+            <Image src="/chatbot-logo.png" alt="SaaSLand" width={120} height={120} style={{ transition: 'transform 0.3s ease-in-out' }} />
           </Typography>
           <IconButton aria-describedby={id} onClick={handleClick} edge="end" color="inherit" aria-label="menu">
             <MenuIcon />
@@ -52,14 +60,17 @@ const MainSection = () => {
               horizontal: 'left',
             }}
           >
-            <Box sx={{ background: "white" }} padding={2} display="flex" flexDirection="column" gap={2}>
-              <Link href="/login">
+            <LinkContainer>
+              <Link href="/login" style={{ textDecoration: 'none' }}>
                 Login
               </Link>
-              <Link href="/signup">
-                Sign Up
+            </LinkContainer>
+
+            <LinkContainer>
+              <Link href="/signup" style={{ textDecoration: 'none' }}>
+                SignUp
               </Link>
-            </Box>
+            </LinkContainer>
 
           </Popover>
 
@@ -69,7 +80,7 @@ const MainSection = () => {
       {/* Hero Section */}
       <Container maxWidth="lg" sx={{ mt: 5 }}>
         <Grid container spacing={5} alignItems="center">
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <Typography variant="h3" component="h1" gutterBottom>
               Customer Support AI
             </Typography>
@@ -80,8 +91,8 @@ const MainSection = () => {
               Get Started
             </Button>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ position: 'relative', width: '100%', height: 'auto', border: '1px solid black'}}>
+          <Grid item xs={12}>
+            <Box sx={{ position: 'relative', width: '100%', height: 'auto', border: '1px solid black' }}>
               <Image
                 src="/chatbot.png" // Replace with your actual image path
                 alt="conversation with chatbot"

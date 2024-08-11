@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -12,6 +12,9 @@ const theme = createTheme({
     error: {
       main: '#dc2626',
     },
+    // typography: {
+    //   fontFamily: 'Roboto, Arial, sans-serif',
+    // },
   },
   components: {
     MuiButton: {

@@ -82,8 +82,9 @@ const LandingPage = () => {
           }}
         >
         </Box> */}
-
-        <MainSection />
+        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
+          <MainSection />
+        </Typography>
 
         <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
           Features
@@ -97,12 +98,14 @@ const LandingPage = () => {
         <Testimonials />
 
 
-        <Typography variant="h4" sx={{ mt: 8,  mb: 2 }} >
+        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
           FAQ
         </Typography>
         <FAQ />
 
-        <ContactForm />
+        <Typography variant="h4" sx={{ mt: 8, mb: 2 }} >
+          <ContactForm />
+        </Typography>
 
 
 
