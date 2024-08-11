@@ -1,20 +1,68 @@
 import React from 'react';
 import { AppBar, Toolbar, IconButton, Typography, Button, Container, Grid, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import Popover from "@mui/material/Popover"
 import Image from 'next/image';
+import NavBar from './navbar';
+import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const MainSection = () => {
+
+  const router = useRouter();
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleGetStarted = () => {
+    router.push('/login');
+  }
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
   return (
+
     <div>
-      {/* Navbar */}
+    
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
           <Typography variant="h6" color="inherit" sx={{ flexGrow: 1 }}>
             <Image src="/chatbot-logo.png" alt="SaaSLand" width={120} height={120} />
           </Typography>
-          <IconButton edge="end" color="inherit" aria-label="menu">
+          <IconButton aria-describedby={id} onClick={handleClick} edge="end" color="inherit" aria-label="menu">
             <MenuIcon />
           </IconButton>
+
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <Box sx={{ background: "white" }} padding={2} display="flex" flexDirection="column" gap={2}>
+              <Link href="/login">
+                Login
+              </Link>
+              <Link href="/signup">
+                Sign Up
+              </Link>
+            </Box>
+
+          </Popover>
+
         </Toolbar>
       </AppBar>
 
@@ -28,7 +76,7 @@ const MainSection = () => {
             <Typography variant="h6" color="black" paragraph>
               Our software solution empowers companies to efficiently handle all customer queries using our advanced chatbot AI.
             </Typography>
-            <Button variant="contained" color="primary" size="large">
+            <Button variant="contained" color="primary" size="large" onClick={handleGetStarted}>
               Get Started
             </Button>
           </Grid>

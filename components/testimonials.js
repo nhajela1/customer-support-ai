@@ -49,28 +49,28 @@ export default function Testimonials() {
           <img src="/stella-larson.jpg" alt="Stella Larson" />
         </Avatar>
         <Name>STELLA LARSON</Name>
-        <Quote>Sample text. Click to select the text box. Click again or double click to start editing the text.</Quote>
+        <Quote>"Implementing this chatbot AI has drastically reduced our response times and improved customer satisfaction. It's like having an extra team member that works around the clock, ensuring no customer query goes unanswered."</Quote>
       </TestimonialCard>
       <TestimonialCard>
         <Avatar>
           <img src="/olga-johnson.jpg" alt="Olga Jhonson" />
         </Avatar>
         <Name>OLGA JHONSON</Name>
-        <Quote>Sample text. Click to select the text box. Click again or double click to start editing the text.</Quote>
+        <Quote>"The chatbot AI has transformed the way we handle customer inquiries, freeing up our support team to focus on more complex issues. We've seen a significant increase in positive feedback from our customers."</Quote>
       </TestimonialCard>
       <TestimonialCard>
         <Avatar>
           <img src="/paul-smith.jpg" alt="Paul Smith" />
         </Avatar>
         <Name>PAUL SMITH</Name>
-        <Quote>Sample text. Click to select the text box. Click again or double click to start editing the text.</Quote>
+        <Quote>"Our customers love the instant responses they receive thanks to the chatbot AI. It's streamlined our support process, allowing us to maintain high levels of service even during peak times."</Quote>
       </TestimonialCard>
       <TestimonialCard>
         <Avatar>
           <img src="/nat-reynolds.jpg" alt="Nat Reynolds" />
         </Avatar>
         <Name>NAT REYNOLDS</Name>
-        <Quote>Sample text. Click to select the text box. Click again or double click to start editing the text.</Quote>
+        <Quote>"This chatbot AI has been a game-changer for our customer service department. It's incredibly efficient at addressing common queries, which has led to higher customer retention and satisfaction."</Quote>
       </TestimonialCard>
     </TestimonialsWrapper>
   );
