@@ -61,11 +61,11 @@ export default function FAQ() {
 
   const faqData = [
     { question: 'What is BOT.ai?', answer: 'The Customer Support AI Chatbot is an AI-powered chatbot that resolves customer queries in real-time using natural language processing.' },
-    { question: 'How can I use BOT.ai?', answer: 'You can use the chatbot by integrating it into your website or mobile application. It can be used to provide customers with individualized responses based on their needs, and even generate tickets if further assistance is required.' },
+    { question: 'How can I use BOT.ai?', answer: 'You can use the chatbot by integrating it into your website or mobile application. It can be used to provide customers with individualized responses based on their needs.' },
     { question: 'Is BOT.ai customizable?', answer: 'Yes, the chatbot is customizable. Companies can tailor the chatbot’s tone and style to match their brand identity. Organization administrators can configure the bot by providing a specific description of the services via text entry and document upload.' },
     { question: 'What are the benefits of using BOT.ai?', answer: 'The chatbot allows enterprises to scale their customer support operations by providing 24/7 automated assistance. It can handle a large volume of customer queries simultaneously, ensuring immediate support for customers.' },
     { question: 'How does BOT.ai work?', answer: 'The chatbot uses natural language processing to understand customer queries and provide relevant responses. It can be trained to recognize specific keywords and phrases based on your organization\'s offerings, enabling it to provide accurate and personalized responses to customers.' },
-    { question: 'How can I get assistance integrating BOT.ai?', answer: 'If you need assistance integrating the chatbot into your website or mobile application, please contact our support team by filling out the contact form below. Our team will be happy to assist you with the integration process.' }
+    { question: 'How can I get assistance integrating BOT.ai?', answer: 'If you need assistance integrating the chatbot into your website or mobile application, please contact our support team by filling out the contact form below.' }
   ];
 
   return (
