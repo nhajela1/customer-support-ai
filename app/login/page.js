@@ -174,13 +174,14 @@ export default function SignInPage() {
             >
               Login
             </Button>
+
             <Button
               fullWidth
               variant="text"
               color="secondary"
               onClick={handleSignUp}
             >
-              Don&apos;t have an account? Sign Up
+              Don&apos;t have an account?&nbsp;<b>Sign Up</b>
             </Button>
           </Box>
         </Box>
