@@ -82,7 +82,7 @@ const MainSection = () => {
         <Grid container spacing={5} alignItems="center">
           <Grid item xs={12}>
             <Typography variant="h3" component="h1" gutterBottom>
-              Customer Support AI
+              <b>Customer Support AI</b>
             </Typography>
             <Typography variant="h6" color="black" paragraph>
               Our software solution empowers companies to efficiently handle all customer queries using our advanced chatbot AI.

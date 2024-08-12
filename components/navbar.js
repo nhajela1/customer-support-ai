@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { AppBar, Toolbar, Box, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { AccountCircle, Logout } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
@@ -8,6 +8,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, firestore } from '../utils/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
+import Image from 'next/image';
 
 const Header = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -110,6 +111,8 @@ export default function Navbar() {
         >
           <AccountCircle fontSize="large" />
         </IconButton>
+
+
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -123,6 +126,7 @@ export default function Navbar() {
             <Typography variant="body2" sx={{ marginLeft: 1 }}>Sign Out</Typography>
           </MenuItem>
         </Menu>
+
       </HeaderContent>
     </Header>
   );
