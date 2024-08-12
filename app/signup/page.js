@@ -7,7 +7,7 @@ import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBase
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { createUserWithEmailAndPassword, signInWithPopup, } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
-import { firestore } from '../../utils/firebase';
+import { firestore, auth } from '../../utils/firebase';
 
 const theme = createTheme({
   palette: {
@@ -91,44 +91,6 @@ const SignUpPage = () => {
 
   const handleSignIn = () => {
     router.push('/login');
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      // Check if the user already exists in Firestore
-      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-      console.log('userDoc:', userDoc);
-      if (!userDoc.exists()) {
-        // If the user doesn't exist, create a new document
-        const companyID = searchParams.get('companyID');
-        console.log('companyID:', companyID);
-        await setDoc(doc(firestore, 'users', user.uid), {
-          email: user.email,
-          isAdmin: false,
-          companyID: companyID || null,
-          messages: []
-        });
-      }
-
-      // Retrieve user data and route accordingly
-      const userData = userDoc.exists() ? userDoc.data() : { isAdmin: false, companyID: searchParams.get('companyID') };
-      if (userData.isAdmin) {
-        router.push('/admin');
-      } else {
-        const companyID = userData.companyID || searchParams.get('companyID');
-        if (companyID) {
-          router.push(`/chat?companyID=${companyID}`);
-        } else {
-          setError('No company ID associated with this account. Please contact support.');
-        }
-      }
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      setError('Failed to sign in with Google. Please try again.');
-    }
   };
 
   return (
