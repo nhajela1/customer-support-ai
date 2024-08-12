@@ -8,14 +8,12 @@ export async function POST(req) {
   const { companyID, companyName, fileURL, description, systemPrompt } = data;
   console.log("Company ID: ", companyID);
   console.log("Company Name: ", companyName);
-  console.log("File URL: ", fileURL);
   console.log("Description: ", description);
   console.log("System Prompt: ", systemPrompt);
 
   try {
     await setDoc(doc(firestore, "companies", companyID), {
       companyName,
-      fileURL,
       description,
       systemPrompt, // Add this line to include the systemPrompt
     });

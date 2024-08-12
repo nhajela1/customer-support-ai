@@ -5,17 +5,12 @@ import { Box, Button, TextField, Typography, Container, ThemeProvider, Snackbar,
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/navbar';
 import theme from '../styles/theme';
-import { upload } from '@/action/upload';
 import { auth, firestore, storage } from '@/utils/firebase';
 import { updateDoc, doc, getDoc } from 'firebase/firestore';
-import { deleteObject, ref } from 'firebase/storage';
-import CloseIcon from '@mui/icons-material/Close';
 
 export default function AdminDashboard() {
   const [description, setDescription] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState('');
   const [userLink, setUserLink] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [companyID, setCompanyID] = useState('');
@@ -65,10 +60,6 @@ export default function AdminDashboard() {
               setDescription(companyData.description || '');
               setSystemPrompt(companyData.systemPrompt || '');
               setInitialSystemPrompt(companyData.systemPrompt || '');
-              if (companyData.fileURL) {
-                setFile({ name: companyData.fileName || 'Existing document', url: companyData.fileURL });
-                setFileName(companyData.fileName || 'Existing document');
-              }
               generateUserLink(userData.companyID);
             }
           }
@@ -79,25 +70,10 @@ export default function AdminDashboard() {
     fetchCompanyData();
   }, []);
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
-    setFileName(selectedFile.name);
-  };
-
   const updateCompanyDetails = async () => {
     if (!companyName) {
       console.error('Company name is required');
       return null;
-    }
-
-    let fileURL = null;
-    if (file instanceof File) {
-      const formData = new FormData();
-      formData.append('file', file);
-      fileURL = await upload(formData);
-    } else if (file && file.url) {
-      fileURL = file.url;
     }
 
     const updatedCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
@@ -108,8 +84,6 @@ export default function AdminDashboard() {
       body: JSON.stringify({ 
         companyID: updatedCompanyID, 
         companyName, 
-        fileURL, 
-        fileName,
         description,
         systemPrompt
       }),
@@ -307,38 +281,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleRemoveFile = async () => {
-    if (file && file.url) {
-      try {
-        const fileRef = ref(storage, file.url);
-        await deleteObject(fileRef);
-        
-        const updatedCompanyID = companyName.trim().toLowerCase().replace(/\s+/g, '-');
-        await fetch('/api/set-company', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            companyID: updatedCompanyID, 
-            companyName, 
-            fileURL: null, 
-            fileName: null,
-            description,
-            systemPrompt
-          }),
-        });
-
-        setFile(null);
-        setFileName('');
-        setOpenSnackbar(true);
-        setSnackbarMessage("File removed successfully");
-      } catch (error) {
-        console.error("Error removing file:", error);
-        setOpenSnackbar(true);
-        setSnackbarMessage("Failed to remove file");
-      }
-    }
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
@@ -365,26 +307,6 @@ export default function AdminDashboard() {
             onChange={(e) => setDescription(e.target.value)}
             sx={{ mb: 2 }}
           />
-          <Button
-            variant="contained"
-            component="label"
-            sx={{ mb: 2 }}
-          >
-            Upload Document
-            <input
-              type="file"
-              hidden
-              onChange={handleFileChange}
-            />
-          </Button>
-          {file && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography sx={{ flexGrow: 1 }}>{fileName}</Typography>
-              <IconButton onClick={handleRemoveFile} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          )}
           {error && (
             <Typography color="error" sx={{ mb: 2 }}>
               {error}
