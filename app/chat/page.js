@@ -295,7 +295,6 @@ const ChatPage = () => {
         </Stack>
       </Box>
     </ThemeProvider>
-    </Suspense>
   )
 }
 

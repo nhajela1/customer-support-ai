@@ -44,13 +44,18 @@ export default function Features() {
                 textAlign: 'center',
                 p: 2,
                 backgroundColor: '#ffffff',
+                height: '100%', // Set a consistent height
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              <CardContent>
-                <Box sx={{ mb: 2 }}>{feature.icon}</Box>
-                <Typography variant="h6" gutterBottom color="black">
-                  {feature.title}
-                </Typography>
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <Box>
+                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                  <Typography variant="h6" gutterBottom color="black">
+                    {feature.title}
+                  </Typography>
+                </Box>
                 <Typography variant="body2" color="black">
                   {feature.description}
                 </Typography>

@@ -29,7 +29,7 @@ const theme = createTheme({
 });
 
 
-export default function SignInPage() {
+const SignInPage = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();

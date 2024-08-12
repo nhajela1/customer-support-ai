@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { useState } from 'react';
 
 const FAQWrapper = styled.div`
-  /* padding: 50px 0; */
+  padding: 30px 0;
   background-color: #f7faff;
 `;
 
 const FAQTitle = styled.h2`
   text-align: center;
   margin-bottom: 40px;
+  padding-top: 20px;
   font-size: 24px;
   color: #4a4a4a;
 `;
@@ -32,9 +33,10 @@ const Question = styled.div`
 `;
 
 const Answer = styled.div`
-  max-height: ${({ $isOpen }) => ($isOpen ? '500px' : '0')};
+  max-height: ${({ $isOpen }) => ($isOpen ? '1000px' : '0')};
+  opacity: ${({ $isOpen }) => ($isOpen ? '1' : '0')};
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
   background: #f9f9f9;
   padding: ${({ $isOpen }) => ($isOpen ? '20px' : '0 20px')};
   border-left: 1px solid #e6e6e6;
