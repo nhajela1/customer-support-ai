@@ -4,8 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { auth, firestore } from '../../utils/firebase';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider, firestore } from '../../utils/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const theme = createTheme({
@@ -173,13 +173,14 @@ export default function SignInPage() {
             >
               Login
             </Button>
+
             <Button
               fullWidth
               variant="text"
               color="secondary"
               onClick={handleSignUp}
             >
-              Don&apos;t have an account? Sign Up
+              Don&apos;t have an account?&nbsp;<b>Sign Up</b>
             </Button>
           </Box>
         </Box>

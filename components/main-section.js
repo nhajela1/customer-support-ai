@@ -68,7 +68,7 @@ const MainSection = () => {
 
             <LinkContainer>
               <Link href="/signup" style={{ textDecoration: 'none' }}>
-                SignUp
+                Sign Up
               </Link>
             </LinkContainer>
 
@@ -92,9 +92,9 @@ const MainSection = () => {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            <Box sx={{ position: 'relative', width: '100%', height: 'auto', border: '1px solid black' }}>
+            <Box sx={{ position: 'relative', width: '100%', height: 'auto' }}>
               <Image
-                src="/chatbot.png" // Replace with your actual image path
+                src="/chatbot.jpg" // Replace with your actual image path
                 alt="conversation with chatbot"
                 layout="responsive"
                 width={700}
