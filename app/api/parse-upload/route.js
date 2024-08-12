@@ -9,6 +9,7 @@ import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { firestore } from "firebase-admin";
 
+
 // Initialize Pinecone
 const pinecone = new PineconeClient();
 await pinecone.init({
@@ -110,45 +111,4 @@ async function queryChatbot(company, question) {
     answer: response.text,
     sources: response.sourceDocuments.map(doc => doc.metadata),
   };
-}
-
-async function createCompany(company) {
-  const index = pinecone.Index(INDEX_NAME);
-  await index.createNamespace(company);
-  return `Company ${company} created successfully`;
-}
-
-async function listCompanies() {
-  const index = pinecone.Index(INDEX_NAME);
-  const indexStats = await index.describeIndexStats();
-  return { companies: Object.keys(indexStats.namespaces) };
-}
-
-export async function handler(req, res) {
-  try {
-    const { method, query, body } = req;
-
-    if (method === 'POST') {
-      if (query.action === 'upload') {
-        const result = await uploadDocument(body.company, body.documentId);
-        res.status(200).json({ message: result });
-      } else if (query.action === 'query') {
-        const result = await queryChatbot(body.company, body.question);
-        res.status(200).json(result);
-      } else if (query.action === 'create-company') {
-        const result = await createCompany(body.name);
-        res.status(200).json({ message: result });
-      }
-    } else if (method === 'GET') {
-      if (query.action === 'list-companies') {
-        const result = await listCompanies();
-        res.status(200).json(result);
-      }
-    } else {
-      res.status(405).json({ message: 'Method Not Allowed' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
 }

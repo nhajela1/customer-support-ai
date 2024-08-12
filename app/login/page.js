@@ -4,9 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Box, Button, Container, Typography, TextField, AppBar, Toolbar, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { auth, googleProvider, firestore } from '../../utils/firebase';
+import { auth, firestore } from '../../utils/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const theme = createTheme({
   palette: {
@@ -27,7 +27,9 @@ const theme = createTheme({
   },
 });
 
-const SignInPage = () => {
+
+export default function SignInPage() {
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -81,41 +83,6 @@ const SignInPage = () => {
     router.push(`/signup${companyID ? `?companyID=${companyID}` : ''}`);
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      // Check if the user already exists in Firestore
-      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-      if (!userDoc.exists()) {
-        // If the user doesn't exist, create a new document
-        const companyID = searchParams.get('companyID');
-        await setDoc(doc(firestore, 'users', user.uid), {
-          email: user.email,
-          isAdmin: false,
-          companyID: companyID || null,
-          messages: []
-        });
-      }
-
-      // Retrieve user data and route accordingly
-      const userData = userDoc.exists() ? userDoc.data() : { isAdmin: false, companyID: searchParams.get('companyID') };
-      if (userData.isAdmin) {
-        router.push('/admin');
-      } else {
-        const companyID = userData.companyID || searchParams.get('companyID');
-        if (companyID) {
-          router.push(`/chat?companyID=${companyID}`);
-        } else {
-          setError('No company ID associated with this account. Please contact support.');
-        }
-      }
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      setError('Failed to sign in with Google. Please try again.');
-    }
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -208,14 +175,6 @@ const SignInPage = () => {
             </Button>
             <Button
               fullWidth
-              variant="contained"
-              color="secondary"
-              onClick={handleGoogleSignIn}
-            >
-              Sign In with Google
-            </Button>
-            <Button
-              fullWidth
               variant="text"
               color="secondary"
               onClick={handleSignUp}
@@ -229,4 +188,3 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
